@@ -1,4 +1,3 @@
-import Users from "../models/UserModel.js";
 
 export const getAllUsers = async(req, res) => {
     try {

@@ -1,20 +1,21 @@
-import Users from "../models/UserModel.js";
+import Student from "../models/StudentModel";
+import Responser from "../lib/Responser.js"
 import bcrypt from "bcrypt"
 import jwt  from "jsonwebtoken";
 
 export const register = async(req, res) => {
-    const {name, jenis_pengguna, nik, password, conf_password} = req.body;
-    if(password !== conf_password) return res.status(400).json({msg: "password dan confirmation password tidak cocok"})
+    const {student_name, student_email, student_nisn, student_password, student_conf_password} = req.body;
+    if(student_password !== student_conf_password) return res.status(400).json({msg: "password dan confirmation password tidak cocok"})
     const salt = await bcrypt.genSalt();
-    const hashPassword = await bcrypt.hash(password, salt);
+    const hashPassword = await bcrypt.hash(student_password, salt);
     try {
-        await Users.create({
-            name: name,
-            jenis_pengguna: jenis_pengguna,
-            nik: nik,
-            password: hashPassword
-        })
-        res.status(200).json({msg: "Register Berhasil"})
+        const newStudent = await Student.create({
+            student_name: student_name,
+            student_email: student_email,
+            student_nisn: student_nisn,
+            student_password: hashPassword
+        });
+        Responser.success(res, "Berhasil Register", newStudent);
     } catch (error) {
         console.log(error)
     }
