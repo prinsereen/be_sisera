@@ -1,6 +1,7 @@
 import express from "express"
 import db from "./config/Database.js";
 import Student from "./models/StudentModel.js";
+import bodyParser from "body-parser";
 import AuthRoute from "./routes/AuthRoute.js"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
@@ -17,6 +18,9 @@ try {
 } catch (error) {
     console.log(error)
 }
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use(cookieParser())
 app.use(express.json())

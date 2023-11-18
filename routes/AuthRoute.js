@@ -5,7 +5,7 @@ import { Register, Login } from "../validation/AuthValidation.js";
 
 const router = express.Router();
 
-router.post('/register', register, Register)
+router.post('/register', Register, register)
 /* router.post('/login', login)
 router.get('/token', refreshToken)
 router.delete('/logout', logout)

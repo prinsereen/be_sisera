@@ -6,11 +6,11 @@ import { check, validationResult } from "express-validator";
 
 export const register = async(req, res) => {
     const {student_name, student_email, student_nisn, student_password, student_conf_password} = req.body;
-    if(student_password !== student_conf_password) return res.status(400).json({msg: "password dan confirmation password tidak cocok"})
 
     const errors = validationResult(req);
+    console.log(errors);
     if (!errors.isEmpty()) {
-        return error(res,  errors["errors"][0].param + " " + errors["errors"][0].msg, errors["errors"])
+        return error(res,  errors["errors"][0].path + " " + errors["errors"][0].msg, errors["errors"])
     }
 
     try {
@@ -23,13 +23,24 @@ export const register = async(req, res) => {
             student_nisn: student_nisn,
             student_password: hashPassword
         });
-        return success(res, "Berhasil Register", newStudent);
+
+        const studentData = newStudent.get();
+        console.log(studentData)
+
+        delete studentData.id;
+        delete studentData.student_id;
+        delete studentData.student_password;
+        delete studentData.updatedAt;
+        delete studentData.createdAt;
+        
+        return success(res, "Berhasil Register", studentData);
+        
     } catch (error) {
         console.log(error)
     }
 }
 
-export const login = async(req, res) => {
+/* export const login = async(req, res) => {
     try {
         const user = await Student.findAll({
             where:{
@@ -82,4 +93,4 @@ export const logout = async(req, res) => {
     });
     res.clearCookie('refreshToken');
     return res.sendStatus(200)
-}
+} */

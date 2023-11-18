@@ -21,9 +21,15 @@ export const Register = [
         if (existingEmail) {
             throw new Error('user sudah terdaftar');
         }
+    }),
+    check('student_conf_password').custom(async (confPassword, { req }) => {
+        const { student_password } = req.body;
+        if (student_password !== await confPassword) {
+            throw new Error('password dan confirmation password tidak cocok');
+        }
     })
+    
 ];
-
 
 export const Login = [
     check('student_name').isLength({ min: 1 }).withMessage('tidak boleh kosong'),

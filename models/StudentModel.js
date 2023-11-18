@@ -12,6 +12,13 @@ const Student = db.define('students', {
             notEmpty: true,
         }
     },
+    student_name:{
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+        }
+    },
     student_email:{
         type: DataTypes.STRING,
         allowNull: false,
