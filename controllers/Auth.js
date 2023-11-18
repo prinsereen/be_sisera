@@ -1,21 +1,29 @@
-import Student from "../models/StudentModel";
-import Responser from "../lib/Responser.js"
+import Student from "../models/StudentModel.js";
+import {success, error} from "../lib/Responser.js"
 import bcrypt from "bcrypt"
 import jwt  from "jsonwebtoken";
+import { check, validationResult } from "express-validator";
 
 export const register = async(req, res) => {
     const {student_name, student_email, student_nisn, student_password, student_conf_password} = req.body;
     if(student_password !== student_conf_password) return res.status(400).json({msg: "password dan confirmation password tidak cocok"})
-    const salt = await bcrypt.genSalt();
-    const hashPassword = await bcrypt.hash(student_password, salt);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return error(res,  errors["errors"][0].param + " " + errors["errors"][0].msg, errors["errors"])
+    }
+
     try {
+        const salt = await bcrypt.genSalt();
+        const hashPassword = await bcrypt.hash(student_password, salt);
+
         const newStudent = await Student.create({
             student_name: student_name,
             student_email: student_email,
             student_nisn: student_nisn,
             student_password: hashPassword
         });
-        Responser.success(res, "Berhasil Register", newStudent);
+        return success(res, "Berhasil Register", newStudent);
     } catch (error) {
         console.log(error)
     }
@@ -23,7 +31,7 @@ export const register = async(req, res) => {
 
 export const login = async(req, res) => {
     try {
-        const user = await Users.findAll({
+        const user = await Student.findAll({
             where:{
                 nik: req.body.nik,
                 jenis_pengguna: req.body.jenis_pengguna

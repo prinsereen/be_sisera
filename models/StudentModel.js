@@ -6,7 +6,7 @@ const {DataTypes} = Sequelize;
 const Student = db.define('students', {
     student_id:{
         type: DataTypes.STRING,
-        defaultValue: DataTypes.uuidV4,
+        defaultValue: DataTypes.UUIDV4,
         allowNull: false,
         validate: {
             notEmpty: true,
