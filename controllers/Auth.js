@@ -8,7 +8,6 @@ export const register = async(req, res) => {
     const {student_name, student_email, student_nisn, student_password, student_conf_password} = req.body;
 
     const errors = validationResult(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
         return error(res,  errors["errors"][0].path + " " + errors["errors"][0].msg, errors["errors"])
     }
@@ -40,30 +39,38 @@ export const register = async(req, res) => {
     }
 }
 
-/* export const login = async(req, res) => {
+export const login = async(req, res) => {
     try {
-        const user = await Student.findAll({
+
+        const {student_nisn, student_password} = req.body;
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return error(res,  errors["errors"][0].path + " " + errors["errors"][0].msg, errors["errors"])
+        }
+
+        const user = await Student.findOne({
             where:{
-                nik: req.body.nik,
-                jenis_pengguna: req.body.jenis_pengguna
+                student_nisn: student_nisn
             }
         })
-        const match = await bcrypt.compare(req.body.password, user[0].password);
-        if(!match) return res.status(400).json({msg: "Wrong Password"})
-        const userId = user[0].id;
-        const name = user[0].name;
-        const jenis_pengguna = user[0].jenis_pengguna;
-        const nik = user[0].nik;
 
-        const accessToken = jwt.sign({userId, name, jenis_pengguna, nik}, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: '60s'
-        });
-        const refreshToken = jwt.sign({userId, name, jenis_pengguna, nik}, process.env.REFRESH_TOKEN_SECRET, {
+        const match = await bcrypt.compare(student_password, user.student_password);
+        if(!match) return error(res, "Wrong Password")
+
+        const name = user.student_name;
+        const email = user.student_email;
+        const Nisn = user.student_nisn;
+
+        const accessToken = jwt.sign({name, email, Nisn}, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: '1d'
         });
-        await Users.update({refresh_token: refreshToken}, {
+        const refreshToken = jwt.sign({name, email, Nisn}, process.env.REFRESH_TOKEN_SECRET, {
+            expiresIn: '1d'
+        });
+        await Student.update({refresh_token: refreshToken}, {
             where: {
-                id: userId
+                student_name: name
             }
         });
         res.cookie('refreshToken', refreshToken, {
@@ -72,6 +79,7 @@ export const register = async(req, res) => {
         });
         res.json({accessToken})
     } catch (error) {
+        console.log(error)
         res.status(404).json({msg: "User Tidak Ditemukan"})
     }
 }
@@ -79,18 +87,18 @@ export const register = async(req, res) => {
 export const logout = async(req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if(!refreshToken) return res.sendStatus(204);
-    const user = await Users.findAll({
+    const user = await Student.findOne({
         where:{
             refresh_token: refreshToken
         }
     });
-    if(!user[0]) return res.sendStatus(204);
-    const userId = user[0].id;
-    await Users.update({refresh_token: null},{
+    if(!user) return res.sendStatus(204);
+    const student_nisn = user.student_nisn;
+    await Student.update({refresh_token: null},{
         where:{
-            id: userId
+            student_nisn: student_nisn
         }
     });
     res.clearCookie('refreshToken');
     return res.sendStatus(200)
-} */
+}

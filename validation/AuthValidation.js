@@ -32,8 +32,6 @@ export const Register = [
 ];
 
 export const Login = [
-    check('student_name').isLength({ min: 1 }).withMessage('tidak boleh kosong'),
     check('student_nisn').isLength({ min: 1 }).withMessage('tidak boleh kosong'),
     check('student_password').isLength({ min: 1 }).withMessage('tidak boleh kosong'),
-    check('student_email').isEmail().withMessage('format tidak sesuai')
 ]
