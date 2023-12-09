@@ -51,25 +51,15 @@ export const getStudentById = async(req, res) => {
 
 
 export const updateStudentById = async (req, res) => {
-    try {
-        const student = await Student.findOne({
-            where: {
-                student_id: req.params.id 
-            },
-            attributes: [
-                'student_id',
-                'student_name',
-                'student_email',
-                'student_class',
-                'student_grade'
-            ]
-        });
+    try { 
+        let student = await findStudentById(req.params.id);
 
         if (!student) {
             return error(res, "Student tidak ditemukan", {});
         }
 
         const { name, email, clas, grade, password, confPassword } = req.body;
+        if (req.user.student_id != req.params.id){return error(res, "Unauthorized", {}, 401);}
 
         let hashPassword = student.student_password;
 
@@ -89,13 +79,22 @@ export const updateStudentById = async (req, res) => {
                 student_class: clas,
                 student_grade: grade,
                 student_password: hashPassword
-            }, 
+            },
             {
                 where: {
                     student_id: req.params.id
-                }
+                },
+                attributes: [
+                    'student_id',
+                    'student_name',
+                    'student_email',
+                    'student_class',
+                    'student_grade'
+                ]
             }
         );
+
+        student = await findStudentById(req.params.id);
 
         return success(res, "Update berhasil", student);
     } catch (error) {
@@ -104,13 +103,11 @@ export const updateStudentById = async (req, res) => {
     }
 };
 
+
 export const deleteStudentById = async(req, res) => {
     try {
-        const student = await Student.findOne({
-            where: {
-                student_id: req.params.id 
-            }
-        })
+        const student = await findStudentById(req.params.id);
+
         if (!student){return error(res, "Student tidak ditemukan");}
         await student.destroy()
         return success(res, "Berhasil menghapus student", {} ,204)
@@ -120,3 +117,17 @@ export const deleteStudentById = async(req, res) => {
     }
 }
 
+async function findStudentById(id) {
+    return await Student.findOne({
+        where: {
+            student_id: id
+        },
+        attributes: [
+            'student_id',
+            'student_name',
+            'student_email',
+            'student_class',
+            'student_grade'
+        ]
+    });
+}

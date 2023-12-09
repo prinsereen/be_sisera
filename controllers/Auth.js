@@ -58,19 +58,20 @@ export const login = async(req, res) => {
         const match = await bcrypt.compare(student_password, user.student_password);
         if(!match) return error(res, "Wrong Password")
 
+        const id = user.student_id;
         const name = user.student_name;
         const email = user.student_email;
-        const Nisn = user.student_nisn;
+        const nisn = user.student_nisn;
 
-        const accessToken = jwt.sign({name, email, Nisn}, process.env.ACCESS_TOKEN_SECRET, {
+        const accessToken = jwt.sign({id, name, email, nisn}, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: '1d'
         });
-        const refreshToken = jwt.sign({name, email, Nisn}, process.env.REFRESH_TOKEN_SECRET, {
+        const refreshToken = jwt.sign({id, name, email, nisn}, process.env.REFRESH_TOKEN_SECRET, {
             expiresIn: '1d'
         });
         await Student.update({refresh_token: refreshToken}, {
             where: {
-                student_name: name
+                student_nisn: student_nisn
             }
         });
         res.cookie('refreshToken', refreshToken, {
