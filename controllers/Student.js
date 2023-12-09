@@ -104,4 +104,19 @@ export const updateStudentById = async (req, res) => {
     }
 };
 
+export const deleteStudentById = async(req, res) => {
+    try {
+        const student = await Student.findOne({
+            where: {
+                student_id: req.params.id 
+            }
+        })
+        if (!student){return error(res, "Student tidak ditemukan");}
+        await student.destroy()
+        return success(res, "Berhasil menghapus student", {} ,204)
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: error.message });
+    }
+}
 
