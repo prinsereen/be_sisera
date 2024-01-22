@@ -2,37 +2,25 @@ import Student from "../models/StudentModel.js";
 import {success, error} from "../lib/Responser.js"
 import bcrypt from "bcrypt"
 import jwt  from "jsonwebtoken";
-import { check, validationResult } from "express-validator";
 
 export const register = async(req, res) => {
-    const {student_name, student_email, student_nisn, student_password, student_conf_password} = req.body;
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return error(res,  errors["errors"][0].path + " " + errors["errors"][0].msg, errors["errors"])
-    }
+    const {name, email, password, conf_password} = req.body;
 
     try {
+        if (password != conf_password){
+            return error(res, "Password dan Confirmation Password tidak sama")
+        }
+
         const salt = await bcrypt.genSalt();
-        const hashPassword = await bcrypt.hash(student_password, salt);
+        const hashPassword = await bcrypt.hash(password, salt);
 
         const newStudent = await Student.create({
-            student_name: student_name,
-            student_email: student_email,
-            student_nisn: student_nisn,
-            student_password: hashPassword
+            name,
+            email,
+            password: hashPassword
         });
-
-        const studentData = newStudent.get();
-        console.log(studentData)
-
-        delete studentData.id;
-        delete studentData.student_id;
-        delete studentData.student_password;
-        delete studentData.updatedAt;
-        delete studentData.createdAt;
         
-        return success(res, "Berhasil Register", studentData);
+        return success(res, "Berhasil Register", newStudent);
         
     } catch (error) {
         console.log(error)
@@ -42,36 +30,31 @@ export const register = async(req, res) => {
 export const login = async(req, res) => {
     try {
 
-        const {student_nisn, student_password} = req.body;
-
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return error(res,  errors["errors"][0].path + " " + errors["errors"][0].msg, errors["errors"])
-        }
+        const {email, password} = req.body;
 
         const user = await Student.findOne({
             where:{
-                student_nisn: student_nisn
+                email
             }
         })
 
-        const match = await bcrypt.compare(student_password, user.student_password);
+        const match = await bcrypt.compare(password, user.password);
         if(!match) return error(res, "Wrong Password")
 
-        const id = user.student_id;
-        const name = user.student_name;
-        const email = user.student_email;
-        const nisn = user.student_nisn;
 
-        const accessToken = jwt.sign({id, name, email, nisn}, process.env.ACCESS_TOKEN_SECRET, {
+        const Id = user.id;
+        const Name = user.name;
+        const Email = user.email;
+
+        const accessToken = jwt.sign({Id, Name, Email}, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: '1d'
         });
-        const refreshToken = jwt.sign({id, name, email, nisn}, process.env.REFRESH_TOKEN_SECRET, {
+        const refreshToken = jwt.sign({Id, Name, Email}, process.env.REFRESH_TOKEN_SECRET, {
             expiresIn: '1d'
         });
         await Student.update({refresh_token: refreshToken}, {
             where: {
-                student_nisn: student_nisn
+                email
             }
         });
         res.cookie('refreshToken', refreshToken, {
@@ -85,6 +68,27 @@ export const login = async(req, res) => {
     }
 }
 
+export const me = async (req, res) => {
+    try {
+        const {user} = req
+  
+      if (!user) {
+        return error(res, "User not found");
+      }
+  
+      const userData = {
+        id: user.Id,
+        name: user.Name,
+        email: user.Email,
+      };
+  
+      return success(res, "User details retrieved successfully", userData);
+    } catch (error) {
+      console.log(error);
+      res.status(404).json({msg: "Unable to fetch user details"})
+    }
+  };
+
 export const logout = async(req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if(!refreshToken) return res.sendStatus(204);
@@ -94,10 +98,10 @@ export const logout = async(req, res) => {
         }
     });
     if(!user) return res.sendStatus(204);
-    const student_nisn = user.student_nisn;
+    const email = user.email;
     await Student.update({refresh_token: null},{
         where:{
-            student_nisn: student_nisn
+            email: email
         }
     });
     res.clearCookie('refreshToken');

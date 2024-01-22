@@ -1,6 +1,6 @@
 import {Sequelize} from "sequelize";
 
-const db = new Sequelize('arunica_db', 'root', '', {
+const db = new Sequelize('sisera_db', 'root', '', {
     host: "localhost",
     dialect: "mysql",
 })
