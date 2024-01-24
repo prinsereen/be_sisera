@@ -11,6 +11,13 @@ const MasterDasar = db.define('master_data_dasar', {
             notEmpty: true,
         }
     },
+    sub_jenis:{
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+        }
+    },
     level:{
         type: DataTypes.ENUM({
             values: ['dasar', 'menengah', 'lanjutan']

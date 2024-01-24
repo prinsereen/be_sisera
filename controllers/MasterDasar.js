@@ -2,11 +2,12 @@ import {success, error} from "../lib/Responser.js"
 import MasterDasar from "../models/MasterDataDasarModel.js"
 
 export const createMasterDasar = async(req, res) => {
-    const {jenis, level , value, file_path} = req.body;
+    const {jenis, sub_jenis, level , value, file_path} = req.body;
     try {        
         const data = await MasterDasar.create({
           level,
           jenis,
+          sub_jenis,
           value,
           file_path
         });
@@ -23,6 +24,7 @@ export const getMasterDasar = async(req, res) => {
               'id',
               'level',
               'jenis',
+              'sub_jenis',
               'value',
               'file_path'
             ]
@@ -34,7 +36,7 @@ export const getMasterDasar = async(req, res) => {
 }
 
 export const getQueryMasterDasar = async (req, res) => {
-    const { id, jenis, value, level } = req.query;
+    const { id, jenis, sub_jenis, value, level } = req.query;
     let whereCondition = {};
   
     if (id) {
@@ -43,6 +45,10 @@ export const getQueryMasterDasar = async (req, res) => {
   
     if (jenis) {
       whereCondition.jenis = jenis;
+    }
+
+    if (sub_jenis) {
+      whereCondition.sub_jenis = sub_jenis;
     }
   
     if (value) {
@@ -56,7 +62,7 @@ export const getQueryMasterDasar = async (req, res) => {
     try {
       const data = await MasterDasar.findAll({
         where: whereCondition,
-        attributes: ["id","level","jenis", "value", "file_path"],
+        attributes: ["id","level","jenis", "sub_jenis", "value", "file_path"],
       });
   
       if (data.length > 0) {

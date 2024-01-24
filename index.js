@@ -9,6 +9,7 @@ import CeritaCard from "./models/CeritaCardModel.js";
 import bodyParser from "body-parser";
 import AuthRoute from "./routes/AuthRoute.js"
 import MasterDasarRoute from "./routes/MasterDasarRoute.js"
+import MasterAdvancedRoute from "./routes/MasterAdvancedRoute.js"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import StudentRoute from "./routes/StudentRoute.js"
@@ -33,5 +34,6 @@ app.use(express.json())
 app.use(AuthRoute)
 app.use(StudentRoute)
 app.use(MasterDasarRoute)
+app.use(MasterAdvancedRoute)
 
 app.listen(5000, ()=> console.log("server running on port 5000"))
