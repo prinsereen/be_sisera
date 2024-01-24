@@ -10,6 +10,7 @@ import bodyParser from "body-parser";
 import AuthRoute from "./routes/AuthRoute.js"
 import MasterDasarRoute from "./routes/MasterDasarRoute.js"
 import MasterAdvancedRoute from "./routes/MasterAdvancedRoute.js"
+import ImageRecognition from "./routes/ImageRecognition.js"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import StudentRoute from "./routes/StudentRoute.js"
@@ -35,5 +36,6 @@ app.use(AuthRoute)
 app.use(StudentRoute)
 app.use(MasterDasarRoute)
 app.use(MasterAdvancedRoute)
+app.use(ImageRecognition)
 
 app.listen(5000, ()=> console.log("server running on port 5000"))
